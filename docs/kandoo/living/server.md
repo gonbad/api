@@ -1,13 +1,13 @@
 # Shared server
 
-- Server choice: unasked
-- Host / public IPv4 / SSH user and port: unset
-- SSH fingerprint and dedicated key login: unverified
-- Domain choice / DNS evidence: unset
+- Server choice: onboarding in progress
+- Host / public IPv4 / SSH user and port: pending participant input in ignored secrets
+- SSH fingerprint and dedicated key login: pending credentials
+- Domain choice / DNS evidence: pending participant input
 - Public HTTPS URL / TLS verification / renewal: unverified
 - HTTP forward proxy / authentication checks / tunnel readiness: unverified
-- Ignored secret file references: none
-- Verification evidence and pending work: none yet
+- Ignored secret file references: docs/kandoo/secrets/credentials.md
+- Verification evidence and pending work: awaiting initial credentials in docs/kandoo/secrets/credentials.md
 
 `none` is a completed, valid answer for local-only work: set server, DNS, TLS and proxy
 to `none` together. Later additions reuse the shared infrastructure procedure.
