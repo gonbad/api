@@ -7,8 +7,8 @@
 - AI host and invocation style: Antigravity (slash commands and skills in .agents/skills)
 - Git readiness: Git 2.43.0 verified, repository initialized
 - Repository-local Git identity: Omid Baharloo <baharloo.omid@gmail.com> (configured in local repository)
-- Participant-owned remote: origin (git@github.com:gonbad/api.git), read verified via ls-remote
-- Remote ownership and write/backup evidence: confirmed ownership; first backup push pending
+- Participant-owned remote: origin (git@github.com:gonbad/api.git), read and write verified
+- Remote ownership and write/backup evidence: verified write and backup via push to origin main (commit 2453340, ref refs/heads/main)
 - Required local tools and verified versions: Git 2.43.0, Bash 5.2.21
 - Shared version: 0.1
 
