@@ -39,7 +39,7 @@
   - Name: `پشتیبانی لسان، منتورا و کنکوریا`
   - Username: `@konkooria_admin`
   - User ID: `64924090`
-  - Phone: `+989384026976`
+  - Phone: `+98938***6976`
   - Presence: `userStatusOnline`
 - **Edge Datacenter Connection**: `https://kazem.eitaa.ir/eitaa/` (Sticky transport layer)
 
@@ -80,7 +80,7 @@ curl -s -H "Referer: https://eitaa.api.kiloapp.ir/docs/" "https://eitaa.api.kilo
 ### 4.3 Verified Live Outbound Message to `@OmidBaharloo`
 ```bash
 curl -s -X POST -H "Content-Type: application/json" \
-  -H "X-Api-Key: eitaa-bridge-master-secret-key-001" \
+  -H "X-Api-Key: $GLOBAL_API_KEY" \
   -d '{"text": "پیام تستی از سرور پروداکشن HTTPS (eitaa.api.kiloapp.ir): استقرار با موفقیت انجام شد!"}' \
   "https://eitaa.api.kiloapp.ir/api/default/chats/OmidBaharloo/messages/text"
 ```
@@ -104,7 +104,7 @@ curl -s -X POST -H "Content-Type: application/json" \
 
 ## 5. Security & Master API Key
 
-- **Master Header**: `X-Api-Key: eitaa-bridge-master-secret-key-001`
-- **Bearer Token Alternative**: `Authorization: Bearer eitaa-bridge-master-secret-key-001`
-- **Query Parameter Alternative**: `?api_key=eitaa-bridge-master-secret-key-001`
+- **Master Header**: `X-Api-Key: $GLOBAL_API_KEY`
+- **Bearer Token Alternative**: `Authorization: Bearer $GLOBAL_API_KEY`
+- **Query Parameter Alternative**: `?api_key=$GLOBAL_API_KEY`
 - **Interactive Swagger UI**: Works immediately out-of-the-box via browser without manual authorization step.
