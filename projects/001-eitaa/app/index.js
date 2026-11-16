@@ -44,6 +44,7 @@ app.use('/docs', swaggerUi.serve, (req, res, next) => {
   try {
     spec = JSON.parse(fs.readFileSync(openApiSpecPath, 'utf-8'));
   } catch (e) {}
+  const key = process.env.GLOBAL_API_KEY || 'eitaa-bridge-master-secret-key-001';
   swaggerUi.setup(spec, {
     customSiteTitle: 'Eitaa Bridge API Docs',
     customCss: '.swagger-ui .topbar { display: none }',
@@ -52,6 +53,16 @@ app.use('/docs', swaggerUi.serve, (req, res, next) => {
       tryItOutEnabled: true,
       defaultModelsExpandDepth: 1,
     },
+    customJsStr: `
+      window.addEventListener('load', function() {
+        var interval = setInterval(function() {
+          if (window.ui && window.ui.preauthorizeApiKey) {
+            clearInterval(interval);
+            window.ui.preauthorizeApiKey('ApiKeyAuth', '${key}');
+          }
+        }, 200);
+      });
+    `,
   })(req, res, next);
 });
 

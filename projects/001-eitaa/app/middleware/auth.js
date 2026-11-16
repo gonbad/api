@@ -8,14 +8,6 @@ function apiKeyAuth(req, res, next) {
   const queryKey = req.query.api_key || req.query.apiKey || req.query.token;
   const providedKey = req.header('X-Api-Key') || (req.header('Authorization') ? req.header('Authorization').replace(/^Bearer\s+/i, '') : null) || queryKey;
 
-  // Allow seamless interactive testing from Swagger UI docs
-  const referer = req.header('referer') || '';
-  if (referer.includes('/docs')) {
-    if (!providedKey || providedKey === globalKey) {
-      return next();
-    }
-  }
-
   if (!providedKey) {
     return res.status(401).json({
       statusCode: 401,

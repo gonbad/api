@@ -4,7 +4,7 @@
 **Version**: 0.1  
 **Target Gateway**: http://127.0.0.1:8016  
 **Execution Date**: 2026-11-16  
-**Active Account**: @konkooria_admin (User ID: `64924090`, Phone: `+989384026976`)  
+**Active Account**: @konkooria_admin (User ID: `64924090`, Phone: `+98938***6976`)  
 **Active Session**: `default` (Status: `WORKING`, Engine: `ebot-mtproto`, DC: `https://kazem.eitaa.ir/eitaa/`)  
 
 ---
@@ -133,7 +133,7 @@ All test commands were executed directly against the live service listening at `
   ```
 - **Invocation (Authorized via Bearer Header)**:
   ```bash
-  curl -i -s -H "Authorization: Bearer eitaa-bridge-master-secret-key-001" http://127.0.0.1:8016/api/sessions
+  curl -i -s -H "Authorization: Bearer $GLOBAL_API_KEY" http://127.0.0.1:8016/api/sessions
   ```
 - **Response**: `HTTP/1.1 200 OK`
 - **Result**: `PASS` — Strict security guard protects all private routes.
@@ -141,14 +141,14 @@ All test commands were executed directly against the live service listening at `
 #### Test 5: Active Session Inspection (`GET /api/sessions/default`)
 - **Invocation**:
   ```bash
-  curl -i -s -H "X-Api-Key: eitaa-bridge-master-secret-key-001" http://127.0.0.1:8016/api/sessions/default
+  curl -i -s -H "X-Api-Key: $GLOBAL_API_KEY" http://127.0.0.1:8016/api/sessions/default
   ```
 - **Response Body**:
   ```json
   {
     "name": "default",
     "status": "WORKING",
-    "phone": "+989384026976",
+    "phone": "+98938***6976",
     "me": {
       "_": "user",
       "flags": 3199,
@@ -159,7 +159,7 @@ All test commands were executed directly against the live service listening at `
       "first_name": "پشتیبانی",
       "last_name": "لسان، منتورا و کنکوریا ",
       "username": "konkooria_admin",
-      "phone": "989384026976"
+      "phone": "98938***6976"
     },
     "engine": "ebot-mtproto",
     "webhookUrl": null
@@ -171,7 +171,7 @@ All test commands were executed directly against the live service listening at `
 1. **Creation (`POST /api/sessions`)**:
    ```bash
    curl -i -s -X POST \
-     -H "X-Api-Key: eitaa-bridge-master-secret-key-001" \
+     -H "X-Api-Key: $GLOBAL_API_KEY" \
      -H "Content-Type: application/json" \
      -d '{"name": "test-ephemeral"}' \
      http://127.0.0.1:8016/api/sessions
@@ -192,7 +192,7 @@ All test commands were executed directly against the live service listening at `
 #### Test 7: Chat & Dialogue Listing (`GET /api/default/chats`)
 - **Invocation**:
   ```bash
-  curl -i -s -H "X-Api-Key: eitaa-bridge-master-secret-key-001" "http://127.0.0.1:8016/api/default/chats?limit=5"
+  curl -i -s -H "X-Api-Key: $GLOBAL_API_KEY" "http://127.0.0.1:8016/api/default/chats?limit=5"
   ```
 - **Response**: `HTTP/1.1 200 OK`
 - **Payload Snippet**:
@@ -243,7 +243,7 @@ All test commands were executed directly against the live service listening at `
 #### Test 9: Message History Retrieval (`GET /api/default/chats/64924090/messages`)
 - **Invocation**:
   ```bash
-  curl -i -s -H "X-Api-Key: eitaa-bridge-master-secret-key-001" "http://127.0.0.1:8016/api/default/chats/64924090/messages?limit=5"
+  curl -i -s -H "X-Api-Key: $GLOBAL_API_KEY" "http://127.0.0.1:8016/api/default/chats/64924090/messages?limit=5"
   ```
 - **Response**: `HTTP/1.1 200 OK`
 - **Payload Snippet**:
@@ -269,7 +269,7 @@ All test commands were executed directly against the live service listening at `
 - **Invocation**:
   ```bash
   curl -i -s -X POST \
-    -H "X-Api-Key: eitaa-bridge-master-secret-key-001" \
+    -H "X-Api-Key: $GLOBAL_API_KEY" \
     -H "Content-Type: application/json" \
     -d '{"text": "Official E2E Verification Live Probe - Test Round 01 [2026-11-16T12:24:30Z]"}' \
     http://127.0.0.1:8016/api/default/chats/64924090/messages/text
@@ -328,7 +328,7 @@ All test commands were executed directly against the live service listening at `
   3. Re-launched gateway service via `PORT=8016 node app/server.js`.
   4. Verified new process initialized with `uptimeSeconds: 8`.
   5. Verified session `default` automatically resumed `WORKING` state:
-     - Phone: `+989384026976`
+     - Phone: `+98938***6976`
      - Username: `@konkooria_admin` (ID: `64924090`)
      - Chat queries immediately returned all 26 dialogues.
 - **Storage Backing**: Local JSON datastore `projects/001-eitaa/data/db_fallback.json` and seed `.auth_state.json`.
@@ -377,7 +377,7 @@ To interactively inspect the running gateway before acceptance:
 1. Open the interactive Swagger UI in your browser:  
    👉 **http://127.0.0.1:8016/docs**
 2. Click the green **Authorize** button at the top right.
-3. Enter the API Key: `eitaa-bridge-master-secret-key-001` (from gitignored credentials).
+3. Enter the API Key: `$GLOBAL_API_KEY` (from gitignored credentials).
 4. Probe `GET /api/health`: Click "Try it out" -> "Execute" -> verify `status: "ok"`.
 5. Probe `GET /api/sessions`: Verify session `default` displays `status: "WORKING"`.
 6. Probe `GET /api/default/chats`: Inspect your live dialogues list.
@@ -404,6 +404,7 @@ Options:
 A. Accept the gateway artifact and authorize advancing to `/job-deploy` for server deployment and Let's Encrypt TLS provisioning.  
 B. Request modifications or report defects.  
 AI Recommendation: A, because all functional requirements, security guards, MTProto Layer 133 connectivity, and persistence criteria are completely verified with raw evidence.  
+- [ ] A. Accept the gateway artifact and authorize advancing to /job-deploy  
 Your answer: A. Accept the gateway artifact and authorize advancing to `/job-deploy` for server deployment and Let's Encrypt TLS provisioning. (Explicit owner directive: "fix it and then deploy it. I wanna sleep. when I wake up, I want it to be fully working. it's OK to communicate with `@OmidBaharloo` . that's my other account.")
 
 ---

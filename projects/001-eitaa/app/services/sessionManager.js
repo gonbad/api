@@ -25,7 +25,7 @@ class SessionManager {
     const list = await sessionRepo.listSessions();
     console.log(`Loaded ${list.length} persisted sessions from repository.`);
     for (const s of list) {
-      if (s.status === 'WORKING' && s.token) {
+      if (s.token) {
         try {
           console.log(`Auto-starting session: ${s.name}`);
           await this.startSession(s.name, s);
