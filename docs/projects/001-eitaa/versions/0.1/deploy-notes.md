@@ -107,4 +107,4 @@ curl -s -X POST -H "Content-Type: application/json" \
 - **Master Header**: `X-Api-Key: $GLOBAL_API_KEY`
 - **Bearer Token Alternative**: `Authorization: Bearer $GLOBAL_API_KEY`
 - **Query Parameter Alternative**: `?api_key=$GLOBAL_API_KEY`
-- **Interactive Swagger UI**: Works immediately out-of-the-box via browser without manual authorization step.
+- **Interactive Swagger UI**: Requires API key authorization via the green 'Authorize' button using the API key ($GLOBAL_API_KEY).
