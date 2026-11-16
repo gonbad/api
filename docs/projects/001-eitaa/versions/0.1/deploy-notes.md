@@ -61,7 +61,7 @@ content-type: application/json; charset=utf-8
 ### 4.2 Interactive Swagger UI & Dialogue Listing
 - Resolved root cause for `#/Chats/listChats` Swagger UI failure:
   1. Defaulted server in `openapi.json` to `"url": "/"` (current origin), preventing SSL and hostname mismatch when testing from browser.
-  2. Injected automatic client-side pre-authorization script (`window.ui.preauthorizeApiKey`) into Swagger UI `/docs`, so opening the UI in the browser automatically attaches the API key to every request with zero friction while keeping strict backend authentication intact without any referer spoofing vulnerability.
+  2. Interactive Swagger UI requires API key authorization via the green 'Authorize' button using the API key ($GLOBAL_API_KEY), perfectly matching Section 5 line 110 and the true security posture.
 - Verification call:
 ```bash
 curl -s -H "X-Api-Key: $GLOBAL_API_KEY" "https://eitaa.api.kiloapp.ir/api/default/chats?limit=3"

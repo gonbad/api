@@ -64,7 +64,7 @@ End-to-end interactive authentication was executed and verified live against Eit
    - Outcome: Received live `auth.sentCode` predicate with `auth.sentCodeTypeApp` (length: 5) and `phone_code_hash`.
 2. **Submit Code (`auth.signIn`)**:
    - Submitted 5-digit verification code with sticky server routing.
-   - Outcome: Received live `auth.authorization` predicate with valid session token (`token: "[REDACTED_SESSION_TOKEN]"` stored in gitignored credentials) and user entity (`id: "64924090"`, `first_name: "پشتیبانی"`, `username: "konkooria_admin"`).
+   - Outcome: Received live `auth.authorization` predicate with valid session token (`token: "d0b5.***_64924090"`) and user entity (`id: "64924090"`, `first_name: "پشتیبانی"`, `username: "konkooria_admin"`).
 3. **Live Post-Login Operation Verification**:
    - Executed `users.getFullUser` with the acquired token -> Returned predicate `userFull` successfully.
    - Executed `messages.getDialogs` with the acquired token -> Returned predicate `messages.dialogsSlice` with 25 active dialogs (including real channels and groups such as "کارگاه MVP با هوش مصنوعی", "دیوار کنکوریا", "خبرگزاری تسنیم").
