@@ -1,0 +1,29 @@
+{
+  "name": "eitaa-bridge-gateway",
+  "version": "0.1.0",
+  "description": "Multi-session REST/OpenAPI gateway for Eitaa messenger",
+  "main": "app/server.js",
+  "scripts": {
+    "start": "node app/server.js",
+    "dev": "node app/server.js",
+    "test": "node scripts/test-login.js ping"
+  },
+  "dependencies": {
+    "aes-js": "3.1.2",
+    "big-integer": "1.6.51",
+    "cors": "^2.8.5",
+    "debug": "^4.3.4",
+    "dotenv": "^16.4.5",
+    "events": "3.3.0",
+    "express": "^4.19.2",
+    "leemon": "6.2.0",
+    "pako": "2.1.0",
+    "pg": "^8.11.5",
+    "swagger-ui-express": "^5.0.0",
+    "winston": "^3.13.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

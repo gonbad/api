@@ -19,3 +19,4 @@
 | Existing Server | workshop-db | PostgreSQL database | coolify:workshop-db:5432 | none | /opt/kandoo/pg-data | PostgreSQL 17.11-bookworm |
 | Existing Server | coolify-core | Coolify control plane | 0.0.0.0:8000 | none | /data/coolify | Coolify 4.3.16 |
 | Existing Server | workshop-blog | Workshop journal | 10.0.1.1:8014 | none | /srv/workshop-blog/current | Caddy live (`blog.kiloapp.ir`) |
+| Project 001-eitaa | eitaa-bridge | Eitaa REST API Gateway & Swagger UI | 10.0.1.1:8016 / 127.0.0.1:8016 | none | /opt/kandoo/projects/001-eitaa/data | https://eitaa.api.kiloapp.ir (HTTP/2 200, Let's Encrypt TLS) |

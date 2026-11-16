@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  eitaa-bridge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eitaa-bridge
+    restart: unless-stopped
+    ports:
+      - "10.0.1.1:8016:8016"
+      - "127.0.0.1:8016:8016"
+    environment:
+      - NODE_ENV=production
+      - PORT=8016
+      - BASE_URL=https://eitaa.api.kiloapp.ir
+      - DATABASE_URL=postgres://postgres:_58yIfC9wqBUU1W1VYqtFfrk5fKvjlpv@workshop-db:5432/eitaa_bridge
+      - GLOBAL_API_KEY=eitaa-bridge-master-secret-key-001
+      - DATA_DIR=/data
+      - WEBHOOK_URL=
+    volumes:
+      - eitaa-bridge-data:/data
+      - ./.auth_state.json:/app/.auth_state.json
+      - ./data/db_fallback.json:/app/data/db_fallback.json
+    networks:
+      - coolify
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.eitaa-bridge.rule=Host(`eitaa.api.kiloapp.ir`)"
+      - "traefik.http.routers.eitaa-bridge.entrypoints=https"
+      - "traefik.http.routers.eitaa-bridge.tls=true"
+      - "traefik.http.routers.eitaa-bridge.tls.certresolver=letsencrypt"
+      - "traefik.http.services.eitaa-bridge.loadbalancer.server.port=8016"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8016/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  eitaa-bridge-data:
+    name: eitaa-bridge-data
+
+networks:
+  coolify:
+    external: true

@@ -1,0 +1,1375 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Eitaa Bridge API",
+    "description": "Standardized multi-session REST gateway and OpenAPI contract for Eitaa messenger (پیام‌رسان ایتا), enabling AI agents and developers to interact with user accounts, channels, and groups.",
+    "version": "0.1.0",
+    "contact": {
+      "name": "API Bridge Support",
+      "url": "https://api.kiloapp.ir"
+    }
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Current Server (Auto)"
+    },
+    {
+      "url": "http://localhost:8016",
+      "description": "Local development environment"
+    },
+    {
+      "url": "https://eitaa.api.kiloapp.ir",
+      "description": "Production gateway server"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    },
+    {
+      "BearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health",
+      "description": "System health and runtime status"
+    },
+    {
+      "name": "Sessions",
+      "description": "Multi-session lifecycle management"
+    },
+    {
+      "name": "Authentication",
+      "description": "Phone number OTP and 2FA authentication"
+    },
+    {
+      "name": "Chats",
+      "description": "Unified dialogues (direct users, groups, and channels)"
+    },
+    {
+      "name": "Channels",
+      "description": "Dedicated channel operations and publishing"
+    },
+    {
+      "name": "Groups",
+      "description": "Dedicated group chat operations"
+    },
+    {
+      "name": "Messages",
+      "description": "Message history retrieval, text sending, and media upload"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health check",
+        "description": "Returns system health, uptime, database connectivity, and engine version.",
+        "operationId": "getHealth",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "System is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions": {
+      "get": {
+        "tags": ["Sessions"],
+        "summary": "List all sessions",
+        "description": "Returns a list of all configured session instances and their operational state.",
+        "operationId": "listSessions",
+        "responses": {
+          "200": {
+            "description": "Array of session summaries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SessionInfo"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Sessions"],
+        "summary": "Create a new session",
+        "description": "Provisions a new session record with optional custom webhook endpoint and start behavior.",
+        "operationId": "createSession",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Session created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictError"
+          }
+        }
+      }
+    },
+    "/api/sessions/{session}": {
+      "get": {
+        "tags": ["Sessions"],
+        "summary": "Get session details",
+        "description": "Returns full details, connection state, user profile, and engine metadata for a session.",
+        "operationId": "getSession",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detailed session information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionInfo"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Sessions"],
+        "summary": "Delete session",
+        "description": "Stops the session engine, clears stored PostgreSQL auth keys/tokens, and removes the session.",
+        "operationId": "deleteSession",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session removed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/sessions/{session}/start": {
+      "post": {
+        "tags": ["Sessions"],
+        "summary": "Start session",
+        "description": "Starts the session network engine and attempts reconnection using saved credentials.",
+        "operationId": "startSession",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionInfo"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/sessions/{session}/stop": {
+      "post": {
+        "tags": ["Sessions"],
+        "summary": "Stop session",
+        "description": "Gracefully disconnects session network socket while preserving persisted authentication tokens.",
+        "operationId": "stopSession",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session stopped",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionInfo"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/sessions/{session}/logout": {
+      "post": {
+        "tags": ["Sessions"],
+        "summary": "Log out session",
+        "description": "Logs out from Eitaa platform server, invalidates the active auth token, and transitions to STOPPED.",
+        "operationId": "logoutSession",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session logged out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/sessions/{session}/auth/request-code": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Request OTP verification code",
+        "description": "Sends phone number to Eitaa to request verification code via SMS or in-app message.",
+        "operationId": "requestCode",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestCodeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification code dispatched",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestCodeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/sessions/{session}/auth/submit-code": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Submit OTP verification code",
+        "description": "Verifies the received OTP code with Eitaa. If 2FA is enabled, returns status AWAITING_PASSWORD; otherwise completes authentication and transitions session to WORKING.",
+        "operationId": "submitCode",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitCodeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification outcome",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitCodeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/sessions/{session}/auth/submit-password": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Submit 2FA cloud password",
+        "description": "Submits two-factor cloud password when session status is AWAITING_PASSWORD.",
+        "operationId": "submitPassword",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitCodeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/{session}/chats": {
+      "get": {
+        "tags": ["Chats"],
+        "summary": "List chats, groups, and channels (Unified)",
+        "description": "Returns dialogue list for the active session, including direct private chats, groups, and subscribed channels. Supports pull polling.",
+        "operationId": "listChats",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by dialogue type: direct, group, or channel",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["all", "direct", "group", "channel"],
+              "default": "all"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of chats to return (1-100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 30,
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Number of chats to skip for pagination",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of dialogs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer",
+                      "example": 42
+                    },
+                    "chats": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Chat"
+                      }
+                    }
+                  },
+                  "required": ["total", "chats"]
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/{session}/chats/{chatId}": {
+      "get": {
+        "tags": ["Chats"],
+        "summary": "Get chat metadata",
+        "description": "Fetches metadata for a specific chat, group, or channel by numeric ID or @username handle (resolves access_hash via DB cache).",
+        "operationId": "getChat",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          },
+          {
+            "$ref": "#/components/parameters/ChatIdPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chat details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Chat"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/{session}/channels": {
+      "get": {
+        "tags": ["Channels"],
+        "summary": "List channels",
+        "description": "Convenience endpoint to retrieve only subscribed broadcast channels for the session.",
+        "operationId": "listChannels",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of channels",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Chat"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/{session}/channels/{channelId}/messages/text": {
+      "post": {
+        "tags": ["Channels"],
+        "summary": "Post text message to channel",
+        "description": "Publishes a text post to a channel where the user has broadcast permissions.",
+        "operationId": "sendChannelTextMessage",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          },
+          {
+            "name": "channelId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "@my_channel"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageTextRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Channel post published",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/{session}/channels/{channelId}/messages/media": {
+      "post": {
+        "tags": ["Channels"],
+        "summary": "Post media to channel",
+        "description": "Publishes media with caption to a channel.",
+        "operationId": "sendChannelMediaMessage",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          },
+          {
+            "name": "channelId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "@my_channel"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageMediaRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Channel media published",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/{session}/groups": {
+      "get": {
+        "tags": ["Groups"],
+        "summary": "List groups",
+        "description": "Convenience endpoint to retrieve only group conversations.",
+        "operationId": "listGroups",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of groups",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Chat"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/{session}/groups/{groupId}/messages/text": {
+      "post": {
+        "tags": ["Groups"],
+        "summary": "Send text message to group",
+        "description": "Sends a message into a group chat.",
+        "operationId": "sendGroupTextMessage",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          },
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "12345678"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageTextRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Group message sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/{session}/chats/{chatId}/messages": {
+      "get": {
+        "tags": ["Messages"],
+        "summary": "Get message history (Pull polling)",
+        "description": "Retrieves recent messages from a direct conversation, group, or channel. Supports pull polling as alternative to webhooks.",
+        "operationId": "getMessages",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          },
+          {
+            "$ref": "#/components/parameters/ChatIdPath"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum messages to retrieve (1-100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "beforeId",
+            "in": "query",
+            "description": "Fetch messages before this message ID for backwards history paging",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of messages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "chatId": {
+                      "type": "string",
+                      "example": "12345678"
+                    },
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Message"
+                      }
+                    }
+                  },
+                  "required": ["chatId", "messages"]
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/{session}/chats/{chatId}/messages/text": {
+      "post": {
+        "tags": ["Messages"],
+        "summary": "Send text message",
+        "description": "Sends a plain text message to a direct user, group chat, or channel by numeric ID or @username.",
+        "operationId": "sendTextMessage",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          },
+          {
+            "$ref": "#/components/parameters/ChatIdPath"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageTextRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message dispatched",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/{session}/chats/{chatId}/messages/media": {
+      "post": {
+        "tags": ["Messages"],
+        "summary": "Send media message",
+        "description": "Sends a photo, document, or media file to a direct chat, group, or channel using URL or base64 data.",
+        "operationId": "sendMediaMessage",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionPath"
+          },
+          {
+            "$ref": "#/components/parameters/ChatIdPath"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageMediaRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Media message dispatched",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Api-Key",
+        "description": "Project or master API key passed in header"
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Standard Bearer token authorization"
+      }
+    },
+    "parameters": {
+      "SessionPath": {
+        "name": "session",
+        "in": "path",
+        "description": "Session identifier (e.g. 'default', 'sales-bot')",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "example": "default"
+        }
+      },
+      "ChatIdPath": {
+        "name": "chatId",
+        "in": "path",
+        "description": "Target chat identifier: numeric peer ID (e.g. '12345678') or public username handle (e.g. '@channel_name'). The gateway resolves access_hash via PostgreSQL entity cache.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "example": "12345678"
+        }
+      }
+    },
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          },
+          "uptimeSeconds": {
+            "type": "number",
+            "example": 3600
+          },
+          "database": {
+            "type": "string",
+            "example": "connected"
+          },
+          "version": {
+            "type": "string",
+            "example": "0.1.0"
+          }
+        },
+        "required": ["status", "uptimeSeconds", "database", "version"]
+      },
+      "SessionStatus": {
+        "type": "string",
+        "enum": [
+          "STOPPED",
+          "STARTING",
+          "AWAITING_OTP",
+          "AWAITING_PASSWORD",
+          "WORKING",
+          "FAILED"
+        ],
+        "example": "WORKING"
+      },
+      "SessionInfo": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "default"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SessionStatus"
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true,
+            "example": "+989120000000"
+          },
+          "me": {
+            "$ref": "#/components/schemas/UserProfile"
+          },
+          "engine": {
+            "type": "string",
+            "example": "ebot-mtproto"
+          },
+          "webhookUrl": {
+            "type": "string",
+            "nullable": true,
+            "example": "https://example.com/webhook"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["name", "status"]
+      },
+      "CreateSessionRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Unique session identifier alphanumeric string",
+            "example": "default"
+          },
+          "start": {
+            "type": "boolean",
+            "description": "Whether to start engine immediately after creation",
+            "default": true
+          },
+          "webhookUrl": {
+            "type": "string",
+            "description": "Target URL for outbound event notifications (fire-and-forget push)",
+            "example": "https://agent.example.com/webhook"
+          }
+        },
+        "required": ["name"]
+      },
+      "RequestCodeRequest": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "International formatted phone number (e.g. +989120000000)",
+            "example": "+989120000000"
+          }
+        },
+        "required": ["phone"]
+      },
+      "RequestCodeResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "AWAITING_OTP"
+          },
+          "phoneCodeHash": {
+            "type": "string",
+            "description": "Verification hash returned by platform to be passed with submit-code",
+            "example": "e45f9a81bc20"
+          },
+          "isCodeSent": {
+            "type": "boolean",
+            "example": true
+          },
+          "timeout": {
+            "type": "integer",
+            "description": "Cooldown seconds before next code can be requested",
+            "example": 60
+          }
+        },
+        "required": ["status", "phoneCodeHash", "isCodeSent"]
+      },
+      "SubmitCodeRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "OTP verification code received on device or via SMS",
+            "example": "12345"
+          },
+          "phoneCodeHash": {
+            "type": "string",
+            "description": "Hash received from request-code endpoint",
+            "example": "e45f9a81bc20"
+          }
+        },
+        "required": ["code", "phoneCodeHash"]
+      },
+      "SubmitCodeResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/SessionStatus"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserProfile"
+          },
+          "message": {
+            "type": "string",
+            "example": "Session authenticated successfully"
+          }
+        },
+        "required": ["status"]
+      },
+      "SubmitPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "Two-factor authentication cloud password",
+            "example": "SecretPass123"
+          }
+        },
+        "required": ["password"]
+      },
+      "UserProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "1002345"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "Omid"
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Baharloo"
+          },
+          "username": {
+            "type": "string",
+            "nullable": true,
+            "example": "omidb"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+989120000000"
+          }
+        },
+        "required": ["id", "firstName"]
+      },
+      "Chat": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of chat, group, or channel",
+            "example": "12345678"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["direct", "group", "channel"],
+            "example": "group"
+          },
+          "title": {
+            "type": "string",
+            "description": "Chat display name, contact name, or group/channel title",
+            "example": "Engineering Group"
+          },
+          "username": {
+            "type": "string",
+            "nullable": true,
+            "example": "eng_team"
+          },
+          "unreadCount": {
+            "type": "integer",
+            "example": 3
+          },
+          "lastMessage": {
+            "$ref": "#/components/schemas/Message"
+          }
+        },
+        "required": ["id", "type", "title", "unreadCount"]
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "987654"
+          },
+          "chatId": {
+            "type": "string",
+            "example": "12345678"
+          },
+          "from": {
+            "type": "string",
+            "description": "Sender identifier",
+            "example": "1002345"
+          },
+          "fromMe": {
+            "type": "boolean",
+            "example": false
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp in seconds",
+            "example": 1731741600
+          },
+          "text": {
+            "type": "string",
+            "nullable": true,
+            "example": "Hello from agent!"
+          },
+          "mediaType": {
+            "type": "string",
+            "nullable": true,
+            "enum": ["image", "document", "voice", "video"],
+            "example": null
+          },
+          "replyToMessageId": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          }
+        },
+        "required": ["id", "chatId", "from", "fromMe", "timestamp"]
+      },
+      "SendMessageTextRequest": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "Plain text message body",
+            "example": "Hello! How can I help you today?"
+          },
+          "replyToMessageId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Optional message ID to quote / reply to",
+            "example": "987654"
+          }
+        },
+        "required": ["text"]
+      },
+      "SendMessageMediaRequest": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Public URL of media file to download and send",
+            "example": "https://example.com/invoice.pdf"
+          },
+          "data": {
+            "type": "string",
+            "description": "Base64 encoded file payload (alternative to url)",
+            "example": "data:application/pdf;base64,JVBERi0xLjQK..."
+          },
+          "filename": {
+            "type": "string",
+            "description": "File name with extension",
+            "example": "invoice.pdf"
+          },
+          "caption": {
+            "type": "string",
+            "description": "Optional caption or description text",
+            "example": "Here is your invoice"
+          },
+          "replyToMessageId": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          }
+        }
+      },
+      "MessageResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "$ref": "#/components/schemas/Message"
+          }
+        },
+        "required": ["success", "message"]
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Operation executed successfully"
+          }
+        },
+        "required": ["success"]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "example": 400
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request"
+          },
+          "message": {
+            "type": "string",
+            "example": "Invalid verification code or phone hash"
+          }
+        },
+        "required": ["statusCode", "error", "message"]
+      },
+      "WebhookSessionStatus": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "enum": ["session.status"],
+            "example": "session.status"
+          },
+          "session": {
+            "type": "string",
+            "example": "default"
+          },
+          "timestamp": {
+            "type": "integer",
+            "example": 1731741600
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "$ref": "#/components/schemas/SessionStatus"
+              },
+              "me": {
+                "$ref": "#/components/schemas/UserProfile"
+              }
+            },
+            "required": ["status"]
+          }
+        },
+        "required": ["event", "session", "timestamp", "payload"]
+      },
+      "WebhookMessageCreated": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "enum": ["message.created"],
+            "example": "message.created"
+          },
+          "session": {
+            "type": "string",
+            "example": "default"
+          },
+          "timestamp": {
+            "type": "integer",
+            "example": 1731741600
+          },
+          "payload": {
+            "$ref": "#/components/schemas/Message"
+          }
+        },
+        "required": ["event", "session", "timestamp", "payload"]
+      }
+    },
+    "responses": {
+      "BadRequestError": {
+        "description": "Invalid input parameters",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "UnauthorizedError": {
+        "description": "Missing or invalid API key / authentication header",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "NotFoundError": {
+        "description": "Requested resource or session not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "ConflictError": {
+        "description": "Resource conflict (e.g. duplicate session name)",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  }
+}
