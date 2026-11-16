@@ -3,6 +3,10 @@
 The first Project is created and selected automatically when the Job is installed.
 Use `kandoo-new-project` for later instances and `kandoo-switch` to resume another.
 
+## Active Projects
+- [001-eitaa](001-eitaa/living/status.md): Eitaa REST/OpenAPI Gateway (Version 0.1, Step: Idea and platform scope)
+
+## Project Structure
 Each `ID` owns document root `docs/projects/ID/` (`living/`, selected version dossier
 `versions/VERSION/` starting at `versions/0.1/00-idea-input.md`, and gitignored
 `secrets/credentials.md` when needed) plus artifact root `projects/ID/` outside this
